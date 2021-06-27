@@ -23,8 +23,19 @@ module.exports = {
             next()
         }
         else {
-            res.status(403).send(JSON.stringify('You are not allowed to access this endpoint'))
+            res.status(403).send(JSON.stringify({message: 'You are not allowed to access this endpoint'}))
         }
+    },
+
+    Authorizationfilter: function authorizationfilter(req, res, next) {
+        let {authorization:token=''} = req.headers
+        if(!token && token.length == 0) {
+            res.status.send(403).send()
+        }
+        else{
+            req.user = utilities.GetPayload(token)
+            next()
+        } 
     }
 
 }

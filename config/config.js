@@ -1,6 +1,6 @@
 module.exports = {
-    secret: 'MySecretKeyItsGetsEasierKeychronk2v2_YourAreTheTrueDevil',
-    uri: 'postgres://csablalb:DG6-_0Zn4ZI3AeCTmGFcHDwSqGZWunYT@batyr.db.elephantsql.com/csablalb',
+    secret: '<SECRET_KEY>',
+    uri: '<DB URI>',
     prefix: 'Bearer',
     expirationTime: 60 * 60,
     saltRounds: 10,

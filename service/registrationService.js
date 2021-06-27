@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken')
 
 const {EmailValidator, PasswordValidator, Claims, CapitalizeFirstLetter, HashPasswordAndCreateUser} = require('../util/util')
-const config = require('../config/config')
+const {expirationTime} = require('../config/config')
+const {secret} = require('../config.json')
 const {User} = require('../config/dbConfig')
 
 module.exports = {
@@ -12,24 +13,41 @@ module.exports = {
             
             if(EmailValidator(email) && PasswordValidator(password)) {                
                 CapitalizeFirstLetter()
-                return jwt.sign(Claims([req.params.role.capitalizeFirstLetter()]), config.secret, {expiresIn: config.expirationTime}, async function(err, token) {
+                return jwt.sign(Claims(email, [req.params.role.capitalizeFirstLetter()]), secret, {expiresIn: expirationTime}, async function(err, token) {
                     if(err){
-                        return res.status(500).send()
+                        res.status(500).send()
                     }
 
-                    let {roles, permissions} = Claims([req.params.role.capitalizeFirstLetter()])
+                    let {roles, permissions} = Claims(email, [req.params.role.capitalizeFirstLetter()])
                     let userModel = {email, password, roles, permissions}
                     
                     async function cb({email, password, roles, permissions}={}) {
                                 
-                        // creating user model
+                        // check whether the user already exist
                         try{
-                            await User.create({
-                                email, password, roles, permissions 
-                            })
-                            return res.status(200).send(token)
-                        } catch(e) {
-                            return res.status(500).send('Something went wrong')
+                            let isExist = await User.findOne({where: {email}})
+                            if(isExist) {
+                                res.status(401).send(JSON.stringify({message: 'User already exist.'}))
+                                res.end()
+                            }
+
+                            else{
+                                 // unless, create new user 
+                                try{
+                                    await User.create({
+                                        email, password, roles, permissions 
+                                        })
+                                }
+                                catch(e) {
+                                    res.status(500).send()
+                                }
+                                                            
+                                    // send token in response
+                                    res.status(200).send(token)
+                            }
+
+                        } catch(e) {   
+                            res.status(500).send(JSON.stringify({message: 'Something went wrong'}))
                         }
                     } 
 
@@ -37,12 +55,12 @@ module.exports = {
                     try{
                         HashPasswordAndCreateUser(userModel, cb)
                     } catch(e) {
-                        console.log(e);
-                        return res.status(500).send('Something went wrong. try again later.')
+                        res.status(500).send(JSON.stringify({message: 'Something went wrong. try again later.'}))
                     }
                 })
             }
             
-            return res.status(401).send(JSON.stringify('Invalid credentials'));
+            // return 401 , if the credentials are wrong
+            res.status(401).send(JSON.stringify({message: 'Invalid credentials'}))
         }       
 }

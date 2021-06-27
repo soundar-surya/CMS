@@ -14,7 +14,7 @@ module.exports = {
         return regExpPassword.test(password)
     },
 
-    Claims: function claims(roles=[]) {
+    Claims: function claims(email='', roles=[]) {
         let permissions = []
         for(let role of roles) {
             if(role == config.instructor) {
@@ -24,7 +24,7 @@ module.exports = {
                 permissions.push(...[config.read, config.write])
             }
         }
-        return {roles, permissions, iat: Math.floor(Date.now() / 1000) - 30}
+        return {email, roles, permissions, iat: Math.floor(Date.now() / 1000) - 30}
     },
 
     CapitalizeFirstLetter: function capitalizeFirstLetter() {
@@ -43,21 +43,35 @@ module.exports = {
 
     HashPasswordAndCreateUser: function hashPasswordAndCreateUser( {email, password, roles, permissions}, cb) {
         try{
-            console.log("inside");
             return bcrypt.hash(password, config.saltRounds, function(err, hash) {
                 if(err){
                     return new Error('Something went wrong!')
                 }
                 else{
-                    console.log(hash);
                     return cb({email, password: hash, roles, permissions})
                 }
             })
         } catch(e){
             throw new Error(e)
         }
+    },
 
-        
+    ComparePasswordAndReturnToken: function comparePasswordAndReturnToken( {email, password, hashedPassword, roles} , cb, res) {
+        try{
+            return bcrypt.compare(password, hashedPassword,function(err, result) {
+                if(err) {
+                    res.status(500).send()
+                }
+                if(result) {
+                    cb(email, roles)
+                }
+                else{
+                    res.status(403).send(JSON.stringify({message: 'Password Mismatch'}))
+                }
+            })
+        } catch(e) {
+            console.log(e.message)
+            res.status(500).send()
+        }
     }
-
 }
