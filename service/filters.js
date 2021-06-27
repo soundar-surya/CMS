@@ -9,6 +9,7 @@ module.exports = {
             next()
         }
         else{
+            console.log(req.params.role);
             res.status(404).send()
         }
     },

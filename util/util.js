@@ -1,5 +1,6 @@
 const config = require('../config/config')
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
  
 module.exports = {
 
@@ -39,5 +40,24 @@ module.exports = {
     GetPayload: function getPayload(bearerToken) {   
         return jwt.decode(this.ExtractToken(bearerToken))
     },
+
+    HashPasswordAndCreateUser: function hashPasswordAndCreateUser( {email, password, roles, permissions}, cb) {
+        try{
+            console.log("inside");
+            return bcrypt.hash(password, config.saltRounds, function(err, hash) {
+                if(err){
+                    return new Error('Something went wrong!')
+                }
+                else{
+                    console.log(hash);
+                    return cb({email, password: hash, roles, permissions})
+                }
+            })
+        } catch(e){
+            throw new Error(e)
+        }
+
+        
+    }
 
 }

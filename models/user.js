@@ -6,8 +6,13 @@ module.exports = function userModel(sequelize, type) {
         password: {
             type: type.STRING
         },
-        role: {
-            type: type.STRING
+        roles: {
+            type: type.ARRAY(type.STRING),
+            defaultValue: null
+        },
+        permissions: {
+            type: type.ARRAY(type.STRING),
+            defaultValue: null
         }
     }, {
         freezeTableName: true

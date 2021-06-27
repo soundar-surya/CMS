@@ -14,6 +14,7 @@ module.exports = {
         try{
             jwt.verify(utilities.ExtractToken(token), config.secret, function(err, decoded) {
                 if(err) {
+                    console.log(err);
                     return res.status(401).send(JSON.stringify('Token Expired'))
                 }
                 next()

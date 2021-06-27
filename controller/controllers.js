@@ -3,7 +3,6 @@ const { Sequelize } = require("sequelize")
 const {Registeration} = require('../service/registrationService')
 const {RequireAuthentication} = require('../service/validationService')
 const {InstructorOnlyFilter, RegisterationFilter} = require('../service/filters')
-const {User} = require('../config/dbConfig')
 
 
 module.exports =  function controller(app) {
@@ -28,10 +27,6 @@ module.exports =  function controller(app) {
         //         role: 'admin'
         //     })
         // })
-
-        await User.create({
-            email, password, role: "Admin"
-        })
 
         
 

@@ -1,23 +1,45 @@
 const jwt = require('jsonwebtoken')
-const { type } = require('os')
 
-const utilities = require('../util/util')
+const {EmailValidator, PasswordValidator, Claims, CapitalizeFirstLetter, HashPasswordAndCreateUser} = require('../util/util')
 const config = require('../config/config')
-
+const {User} = require('../config/dbConfig')
 
 module.exports = {
     
         Registeration: function registeration(req, res) {
 
-            const {email, password} = req.body
+            let {email, password} = req.body
             
-            if(utilities.EmailValidator(email) && utilities.PasswordValidator(password)) {                
-                utilities.CapitalizeFirstLetter()
-                return jwt.sign(utilities.Claims([req.params.role.capitalizeFirstLetter()]), config.secret, {expiresIn: 60}, function(err, token) {
+            if(EmailValidator(email) && PasswordValidator(password)) {                
+                CapitalizeFirstLetter()
+                return jwt.sign(Claims([req.params.role.capitalizeFirstLetter()]), config.secret, {expiresIn: config.expirationTime}, async function(err, token) {
                     if(err){
                         return res.status(500).send()
                     }
-                    return res.status(200).send(token)
+
+                    let {roles, permissions} = Claims([req.params.role.capitalizeFirstLetter()])
+                    let userModel = {email, password, roles, permissions}
+                    
+                    async function cb({email, password, roles, permissions}={}) {
+                                
+                        // creating user model
+                        try{
+                            await User.create({
+                                email, password, roles, permissions 
+                            })
+                            return res.status(200).send(token)
+                        } catch(e) {
+                            return res.status(500).send('Something went wrong')
+                        }
+                    } 
+
+                    // hash password and create user model
+                    try{
+                        HashPasswordAndCreateUser(userModel, cb)
+                    } catch(e) {
+                        console.log(e);
+                        return res.status(500).send('Something went wrong. try again later.')
+                    }
                 })
             }
             

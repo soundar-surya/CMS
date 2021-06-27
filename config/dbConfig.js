@@ -13,7 +13,7 @@ catch(e){
     console.log(e);
 }
 finally{
-    userModel(sequelize, Sequelize).sync({force: false})
+    userModel(sequelize, Sequelize).sync({force: true})
     let User = userModel(sequelize, Sequelize)
 }
 
