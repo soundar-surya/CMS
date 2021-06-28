@@ -47,7 +47,8 @@ module.exports = {
                             }
 
                         } catch(e) {   
-                            res.status(500).send(JSON.stringify({message: 'Something went wrong'}))
+                            console.log(e);
+                            res.status(500).send(JSON.stringify({message: 'Something went wrong-'}))
                         }
                     } 
 

@@ -1,14 +1,14 @@
 const jwt = require('jsonwebtoken')
 
 const {secret} = require('../config.json')
-const {ExtractToken} = require('../util/util')
+const {ExtractToken, GetPayload} = require('../util/util')
 
 module.exports = {
     
     RequireAuthentication : function requireAuthentication(req, res, next) {
         
         let {authorization:token=''} = req.headers
-        if(token.valueOf() == '') {
+        if(!token && token.length == 0) {
             return res.status(401).send(JSON.stringify({message: 'Invalid Token'}))
         }
         try{
@@ -17,6 +17,7 @@ module.exports = {
                     console.log(err);
                     res.status(401).send(JSON.stringify({message: 'Token Expired'}))
                 }
+                req.user = decoded
                 next()
             })
         }

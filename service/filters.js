@@ -1,10 +1,10 @@
 const config = require('../config/config')
 const utilities = require('../util/util')
+const {RequireAuthentication} = require('../service/validationService')
 
 module.exports = {
     
     RegisterationFilter: function registerationFilter(req, res, next) {
-        
         if(req.params.role == config.InstructorRole || req.params.role == config.studentRole) {
             next()
         }
@@ -15,7 +15,6 @@ module.exports = {
     },
 
     InstructorOnlyFilter: function instructorOnlyFilter(req, res, next) {
-        
         let {authorization:token=''} = req.headers
         let {roles=[], permissions=[]} = utilities.GetPayload(token)
 
@@ -27,15 +26,6 @@ module.exports = {
         }
     },
 
-    Authorizationfilter: function authorizationfilter(req, res, next) {
-        let {authorization:token=''} = req.headers
-        if(!token && token.length == 0) {
-            res.status.send(403).send()
-        }
-        else{
-            req.user = utilities.GetPayload(token)
-            next()
-        } 
-    }
+    Authorizationfilter: RequireAuthentication
 
 }

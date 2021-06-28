@@ -34,8 +34,6 @@ module.exports = {
                        }) 
                     }
     
-                    
-                    
                     try{
                           ComparePasswordAndReturnToken({email, password, usermail, hashedPassword, roles, permissions}, cb, res)
                     } catch(e) {
