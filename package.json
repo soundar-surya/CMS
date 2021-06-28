@@ -1,7 +1,7 @@
 {
   "name": "cms",
   "version": "1.0.0",
-  "description": "",
+  "description": "class management system backend servcie.",
   "main": "index.js",
   "dependencies": {
     "bcrypt": "^5.0.1",
